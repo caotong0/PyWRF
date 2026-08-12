@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pywrf"
+version = "0.1.0"
+description = "A PyTorch-based differentiable reimplementation of the WRF model core"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "caoyuan" }]
+keywords = ["wrf", "weather", "forecasting", "differentiable", "pytorch", "atmospheric"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+]
+dependencies = [
+    "numpy",
+    "torch>=1.13",
+    "xarray",
+    "netCDF4",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+pywrf = "pywrf.solver:main"
+
+[tool.setuptools]
+packages = ["pywrf"]

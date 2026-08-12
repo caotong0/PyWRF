@@ -1,0 +1,34 @@
+# ---- WRF binary data files (large, not part of the source repo) ----
+wrfout_*
+wrfbdy_*
+wrf_inout_*
+*.nc
+*.nc4
+
+# ---- Original archive ----
+*.rar
+*.zip
+sharecodes.rar
+
+# ---- data/ holds WRF NetCDF inputs; keep only the README ----
+data/*
+!data/README.md
+!data/.gitkeep
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ---- Tooling / editor ----
+.venv/
+venv/
+env/
+.idea/
+.vscode/
+*.swp
+.DS_Store
