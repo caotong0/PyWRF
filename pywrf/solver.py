@@ -20,7 +20,7 @@ from pywrf.wrf_dynamics import *
 from pywrf.wrf_boundary import *
 
 # --- Input data paths ----------------------------------------------------
-# The WRF NetCDF files are NOT shipped with this repository (data/README.md).
+# The real 9 km case data ships with the repo in data/ (see data/README.md).
 # Override with PYWRF_DATA_DIR / PYWRF_RUN_NAME, or edit below.
 DATA_DIR   = os.environ.get("PYWRF_DATA_DIR", "data")
 RUN_NAME   = os.environ.get("PYWRF_RUN_NAME", "2024020106")

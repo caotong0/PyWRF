@@ -7,8 +7,8 @@ This file is deliberately tiny: the actual solver lives in
 Usage:
     python examples/run_wrf_9km.py
 
-The WRF NetCDF input files must be available under ``data/`` (or point
-``PYWRF_DATA_DIR`` / ``PYWRF_RUN_NAME`` at them) — see ``data/README.md``.
+The real 9 km case data ships with the repo under ``data/`` — see
+``data/README.md`` (``PYWRF_DATA_DIR`` / ``PYWRF_RUN_NAME`` override the paths).
 """
 import os
 import sys

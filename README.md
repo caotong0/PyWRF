@@ -44,7 +44,7 @@ PyWRF/
 │   └── __main__.py           # enables `python -m pywrf`
 ├── examples/
 │   └── run_wrf_9km.py        # thin CLI entry point (calls pywrf.solver.main)
-├── data/                     # WRF NetCDF input files go here (not shipped)
+├── data/                     # real 9 km WRF case data (shipped with the repo)
 ├── pyproject.toml
 └── LICENSE                   # MIT
 ```
@@ -62,10 +62,11 @@ pip install -e .
 
 ## Usage
 
-### 1. Get WRF input data
+### 1. WRF input data
 
 The model integrates a WRF state from NetCDF files produced by a real WRF run.
-These files are **not** bundled with this repository (see `data/README.md`):
+The **real 9 km case data ships with this repository** under `data/` (see
+`data/README.md`):
 
 | File | Description |
 | ---- | ----------- |
@@ -73,7 +74,8 @@ These files are **not** bundled with this repository (see `data/README.md`):
 | `wrfbdy_d01_<RUN>`      | lateral boundary tendencies (`U_BXS`, `T_BXS`, ...) |
 | `wrfout_d01_<RUN>`      | reference output (used for `w`, etc.) |
 
-Place them under `data/` (default) or point the driver at their location:
+The files are already in place, so you can run directly. To use a different run,
+point the solver at their location:
 
 ```bash
 export PYWRF_DATA_DIR=/path/to/data
@@ -193,7 +195,7 @@ PyWRF/
 │   └── __main__.py           # 支持 `python -m pywrf`
 ├── examples/
 │   └── run_wrf_9km.py        # 精简 CLI 入口（调用 pywrf.solver.main）
-├── data/                     # WRF NetCDF 输入文件放在这里（未随仓库发布）
+├── data/                     # 真实 9 km 个例数据（随仓库发布）
 ├── pyproject.toml
 └── LICENSE                   # MIT
 ```
@@ -210,10 +212,10 @@ pip install -e .
 
 ## 使用方法
 
-### 1. 准备 WRF 输入数据
+### 1. WRF 输入数据
 
-模式从真实 WRF 运行产生的 NetCDF 文件读取初始场并积分。这些文件
-**不随本仓库发布**（见 `data/README.md`）：
+模式从真实 WRF 运行产生的 NetCDF 文件读取初始场并积分。**真实 9 km 个例数据
+已随本仓库发布**在 `data/` 目录（见 `data/README.md`）：
 
 | 文件 | 说明 |
 | ---- | ---- |
@@ -221,7 +223,7 @@ pip install -e .
 | `wrfbdy_d01_<RUN>`      | 侧边界倾向（`U_BXS`、`T_BXS`、...） |
 | `wrfout_d01_<RUN>`      | 参考输出（用于读取 `w` 等） |
 
-默认放在 `data/` 目录，或通过环境变量指定路径：
+文件已就位，可直接运行。如需切换其它个例，可通过环境变量指定路径：
 
 ```bash
 export PYWRF_DATA_DIR=/path/to/data

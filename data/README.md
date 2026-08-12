@@ -1,63 +1,65 @@
 # data/
 
-This directory is where the WRF NetCDF input files go. They are **not**
-bundled with the repository (each is tens of MB), so place them here yourself
-or point the driver at them with `PYWRF_DATA_DIR` / `PYWRF_RUN_NAME`.
+This directory ships the **real 9 km WRF case data** used to develop PyWRF
+(start time 2024-02-01 06:00 UTC, 230×230×41 grid points, WRF v3.9.1.1 real
+preprocessor output):
 
-## Files needed
+| File | Description | Size |
+| ---- | ----------- | ---- |
+| `wrf_inout_step3_2024020106` | 3D input state (u, v, mu, mub, ...) | 55 MB |
+| `wrfbdy_d01_2024020106`      | lateral boundary tendencies (`U_BXS`, ...) | 12 MB |
+| `wrfout_d01_2024020106`      | reference output (used for `w`, etc.) | 54 MB |
 
-| File | Description |
-| ---- | ----------- |
-| `wrf_inout_step3_<RUN>` | 3D input state (u, v, mu, mub, ...) |
-| `wrfbdy_d01_<RUN>`      | lateral boundary tendencies (`U_BXS`, `T_BXS`, ...) |
-| `wrfout_d01_<RUN>`      | reference output (used for `w`, etc.) |
+## Running with this data
 
-`<RUN>` is the date suffix, default `2024020106` for the shipped 9 km case
-(configurable via the `PYWRF_RUN_NAME` env var).
+Just run the solver from the repo root — the files are already in place:
 
-## How to obtain them
+```bash
+python examples/run_wrf_9km.py
+# or after `pip install -e .`:  pywrf   /   python -m pywrf
+```
 
-These files are produced by running the real WRF model for the case and dumping
-the relevant intermediate / output NetCDF fields (`U`, `V`, `MU`, `MUB`,
-`PH`, `PHB`, `MAPFAC_*`, moisture, boundary tendency arrays such as
-`U_BXS`, `T_BXS`, ...). For a quick test you can generate them by:
+To point at a different run, override `PYWRF_DATA_DIR` / `PYWRF_RUN_NAME`.
 
-1. Setting up and running [WRF](https://github.com/NCAR/WRF) for a small case,
-   with boundary-update output enabled;
-2. Exporting the needed variables from `wrfinput_d01` / `wrfbdy_d01` /
-   `wrfout_d01` (e.g. with `ncks` or xarray) into the three files above.
+## ⚠️ Boundary data coverage
 
-The original working copy of this project ran against a 9 km, 230×230×41
-single-domain case; the shipped `pywrf/config_params.py` matches that domain.
+`wrfbdy_d01_2024020106` contains **2 boundary-update time levels** (0 and 1).
+The solver loads a new boundary state every `bdy_interval = 320` steps and
+indexes `it_bdy = t_big_step // 320` (steps 1, 321, 641, 961, 1281 → `it_bdy` =
+0, 1, 2, 3, 4). With only 2 levels available, **steps ≥ 641 would index past the
+end of the boundary data and raise an `IndexError`**. The model therefore runs
+correctly for ~640 steps (≈ 10.7 h at dt = 60 s); a longer run needs a `wrfbdy`
+file with 5 boundary levels (or a smaller `bdy_interval`).
 
 ---
 
 # data/
 
-本目录用于存放 WRF NetCDF 输入文件。这些文件**不随仓库发布**（每个数十 MB），
-请自行放入，或用环境变量 `PYWRF_DATA_DIR` / `PYWRF_RUN_NAME` 指定位置。
+本目录随仓库发布用于开发 PyWRF 的**真实 9 km 个例数据**（起始时刻
+2024-02-01 06:00 UTC，230×230×41 格点，WRF v3.9.1.1 real 预处理输出）：
 
-## 所需文件
+| 文件 | 说明 | 大小 |
+| ---- | ---- | ---- |
+| `wrf_inout_step3_2024020106` | 三维输入场（u, v, mu, mub, ...） | 55 MB |
+| `wrfbdy_d01_2024020106`      | 侧边界倾向（`U_BXS`、...） | 12 MB |
+| `wrfout_d01_2024020106`      | 参考输出（用于读取 `w` 等） | 54 MB |
 
-| 文件 | 说明 |
-| ---- | ---- |
-| `wrf_inout_step3_<RUN>` | 三维输入场（u, v, mu, mub, ...） |
-| `wrfbdy_d01_<RUN>`      | 侧边界倾向（`U_BXS`、`T_BXS`、...） |
-| `wrfout_d01_<RUN>`      | 参考输出（用于读取 `w` 等） |
+## 用这套数据运行
 
-`<RUN>` 为日期后缀，内置 9 km 个例默认 `2024020106`（可用 `PYWRF_RUN_NAME`
-环境变量修改）。
+文件已就位，直接在仓库根目录运行即可：
 
-## 如何获取
+```bash
+python examples/run_wrf_9km.py
+# 或安装后： pywrf   /   python -m pywrf
+```
 
-这些文件由真实 WRF 模式运行个例后，从相关中间/输出 NetCDF 场
-（`U`、`V`、`MU`、`MUB`、`PH`、`PHB`、`MAPFAC_*`、水汽量以及
-`U_BXS`、`T_BXS` 等边界倾向数组）导出得到。快速测试的步骤：
+如需切换其它个例，可用 `PYWRF_DATA_DIR` / `PYWRF_RUN_NAME` 覆盖。
 
-1. 配置并运行 [WRF](https://github.com/NCAR/WRF)（小个例即可），开启
-   boundary-update 输出；
-2. 用 `ncks` 或 xarray 从 `wrfinput_d01` / `wrfbdy_d01` / `wrfout_d01` 中
-   导出所需变量，写入上面三个文件。
+## ⚠️ 边界数据覆盖范围
 
-项目原始工作版本针对 9 km、230×230×41 单域个例运行，内置的
-`pywrf/config_params.py` 与该区域一致。
+`wrfbdy_d01_2024020106` 只有 **2 个边界更新时次**（0 和 1）。求解器每
+`bdy_interval = 320` 步加载一次新边界，按 `it_bdy = t_big_step // 320`
+索引（步骤 1、321、641、961、1281 → `it_bdy` = 0、1、2、3、4）。由于只有
+2 个时次，**步骤 ≥ 641 会越界并触发 `IndexError`**。因此这套数据+代码可稳定
+运行约 640 步（dt=60s 下约 10.7 小时）；更长的运行需要 5 个边界时次的
+`wrfbdy` 文件（或更小的 `bdy_interval`）。

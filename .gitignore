@@ -1,4 +1,6 @@
-# ---- WRF binary data files (large, not part of the source repo) ----
+# ---- WRF binary data files ----
+# Large NetCDF outputs are ignored by default; the shipped 9 km case data in
+# data/ is re-included explicitly below (GitHub allows files < 100 MB).
 wrfout_*
 wrfbdy_*
 wrf_inout_*
@@ -10,10 +12,13 @@ wrf_inout_*
 *.zip
 sharecodes.rar
 
-# ---- data/ holds WRF NetCDF inputs; keep only the README ----
+# ---- data/ holds the WRF NetCDF inputs ----
 data/*
 !data/README.md
 !data/.gitkeep
+!data/wrf_inout_step3_2024020106
+!data/wrfbdy_d01_2024020106
+!data/wrfout_d01_2024020106
 
 # ---- Python ----
 __pycache__/
