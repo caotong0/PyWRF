@@ -1,12 +1,18 @@
 # PyWRF
 
-**PyWRF** is a pure **Python / PyTorch** reimplementation of the core of the
-[WRF](https://github.com/NCAR/WRF) (Weather Research and Forecasting) model —
-dynamical core, physics and lateral boundary conditions — written as fully
-tensorized code that is **differentiable** (autograd-friendly). It is intended
-for AI-for-weather research: a physics-based dynamical core that can be
-embedded in / supervised by machine-learning models, finetuned, or differentiated
-through.
+**PyWRF** is the official code repository for the following paper:
+
+> Chu, H., Cao, Y., Wang, R., Xu, J., Chen, L., Fan, X., Chen, S., Guo, J., &
+> Wu, J. (2026). *A Novel ML–NWP Coupled Optimization Approach on a
+> Reconstructed WRF Model*. Journal of Meteorological Research, 40(3), 653–668.
+
+It is a pure **Python / PyTorch** reimplementation of the core of the
+[WRF](https://github.com/NCAR/WRF) model — dynamical core, physics and lateral
+boundary conditions — written as fully tensorized code that is **differentiable**
+(autograd-friendly). It reconstructs WRF's thermodynamic framework together with
+the WSM6 microphysics, and is intended for AI-for-weather research: a
+physics-based core that can be embedded in / supervised by machine-learning
+models, finetuned, or differentiated through.
 
 > ⚠️ **Research prototype.** This is an independent reimplementation of WRF
 > *algorithms*, not a drop-in replacement for the Fortran WRF model, and it is
@@ -20,15 +26,18 @@ through.
 - **Dynamical core** — RK3 time integration, non-hydrostatic, terrain-following
   coordinates, momentum/heat/moisture advection, full and perturbation pressure,
   map factors, damping options.
-- **Physics** — WSM6 single-moment microphysics (cloud/rain/ice/snow/graupel),
-  falling-rain / slope processes, PBL & diffusion, moist adjustment hooks.
+- **Physics** — WSM6 single-moment microphysics (cloud/rain/ice/snow/graupel)
+  with moist-adjustment hooks. The other WRF schemes (radiation, surface, PBL,
+  cumulus) are out of scope for this release — see
+  [Known limitations](#known-limitations).
 - **Boundary conditions** — specified (relaxation + specified zones) and
   flow-dependent lateral boundary updates, mass-weighting.
 - **Differentiable** — every operation is a PyTorch tensor op, so the whole
-  core can run under `torch.autograd` and be tuned as a layer in a neural
-  weather model.
+  core runs under `torch.autograd`. This is what enables the coupled ML–NWP
+  optimization framework of the paper (observation-guided bias calibration
+  trained through the integration with truncated backpropagation).
 - **Matches a real case** — the shipped config reproduces the domain of a real
-  9 km WRF run (230×230×41 grid points).
+  9 km WRF run (230×230×41 grid points), with the real case data in `data/`.
 
 ## Project structure
 
@@ -117,7 +126,8 @@ returns the final key fields (`u`, `v`, `w`, `t`, `ph`, `mu`, `moist`).
 
 ## Attribution
 
-This code accompanies the following paper:
+**This repository is the official code of the following paper — please cite it
+when you use PyWRF in your work:**
 
 - Chu, H., Cao, Y., Wang, R., Xu, J., Chen, L., Fan, X., Chen, S., Guo, J., &
   Wu, J. (2026). *A Novel ML–NWP Coupled Optimization Approach on a
@@ -125,46 +135,65 @@ This code accompanies the following paper:
   https://doi.org/10.1007/s13351-026-5154-1
 
 PyWRF is an independent Python reimplementation of the numerical schemes of the
-WRF model. The original WRF model is developed by NCAR, NOAA and collaborators:
+WRF model. For reference, the original WRF model is developed by NCAR, NOAA and
+collaborators:
 
 - Skamarock, W. C., et al. (2019). *A Description of the Advanced Research WRF
   Model Version 4*, NCAR/TN-556+STR.
 - Hong, S.-Y., & Lim, J.-O. J. (2006). *The WRF single-moment 6-class
   microphysics scheme (WSM6)*. J. Korean Meteor. Soc., 42, 129–151.
 
-When you use PyWRF in a publication, please cite the paper above and the
-original WRF documentation. PyWRF is not affiliated with or endorsed by NCAR,
-and is distributed under the MIT license.
+PyWRF is not affiliated with or endorsed by NCAR, and is distributed under the
+MIT license.
 
 ## Known limitations
 
-- **Research prototype** — not a drop-in WRF replacement; performance is far
-  below the compiled Fortran WRF model and accuracy is not guaranteed.
+- **Physics scope** — this release reconstructs WRF's *thermodynamic* framework
+  and the WSM6 single-moment microphysics. The rest of the WRF physics suite
+  (radiation, surface-layer, PBL and cumulus schemes) is not implemented; the
+  PBL / diffusion hooks in the code are placeholders.
+- **Validation scope** — as described in the paper, the model and the coupled
+  ML–NWP framework were trained and evaluated on **8 mesoscale precipitation
+  events over East China**. Accuracy on other regions, seasons or event types is
+  not established.
+- **Research prototype** — PyWRF is a differentiable reimplementation for
+  ML–NWP research, not a drop-in replacement for the compiled Fortran WRF model:
+  computational performance is far below the Fortran reference and the code is
+  not operationally validated.
+- **ML coupling not shipped** — the single-column neural-network coupling and
+  the truncated-backpropagation training strategy described in the paper are the
+  research application; this repository ships the standalone differentiable
+  core.
+- **Boundary data coverage** — the shipped `wrfbdy` holds 2 boundary time levels
+  (6 h apart), so the time loop runs 720 steps (12 h); a longer run needs more
+  boundary levels.
 - **Single case** — the config hardcodes one 9 km single-domain case; other
   domains require editing `config_params.py`.
 - **Machine-specific settings removed** — hardcoded GPU indices from the
   original working copy were replaced by the `PYWRF_GPU` variable.
 - **fp16 variant** — a float16 variant of the physics module was present as a
   compiled `*.pyc` in the original archive but its source is not included.
-- **Renamed / restructured files** — the original working filenames
-  (`wrf_*_fuctions.py`, `read_wrfinput_writenc_noai_new_9km_1.py`) were renamed
-  for this release (`wrf_*.py`), and the former monolithic driver script was
-  split into the `pywrf.solver` module (`WrfSolver`) plus a thin CLI entry
-  point (`examples/run_wrf_9km.py`).
 
 ## License
 
-[MIT](LICENSE) © 2026 caoyuan.
+[MIT](LICENSE) © 2026 caotong0.
 
 ---
 
 # PyWRF（中文版）
 
-**PyWRF** 是 [WRF](https://github.com/NCAR/WRF)（Weather Research and
-Forecasting，天气预报研究与模式）核心算法的一个纯 **Python / PyTorch**
-重实现——包含动力核、物理过程和侧边界条件——所有运算均为张量化操作，
-因此整体是**可微的**（兼容 autograd）。项目面向“人工智能+气象”研究：
-一个基于物理、可被嵌入机器学习模型、可微调、可端到端反向传播的动力核心。
+**PyWRF** 是以下论文的官方代码仓库：
+
+> Chu, H., Cao, Y., Wang, R., Xu, J., Chen, L., Fan, X., Chen, S., Guo, J., &
+> Wu, J. (2026). *A Novel ML–NWP Coupled Optimization Approach on a
+> Reconstructed WRF Model*. Journal of Meteorological Research, 40(3), 653–668.
+
+它是对 [WRF](https://github.com/NCAR/WRF)（Weather Research and Forecasting，
+天气预报研究与模式）核心算法的一个纯 **Python / PyTorch** 重实现——包含动力核、
+物理过程和侧边界条件——所有运算均为张量化操作，因此整体是**可微的**
+（兼容 autograd）。它重构了 WRF 的热力学框架与 WSM6 微物理，面向
+"人工智能+气象"研究：一个基于物理、可被嵌入机器学习模型、可微调、可端到端
+反向传播的动力核心。
 
 > ⚠️ **研究原型。** 这是对 WRF *算法*的独立重实现，并非 Fortran WRF 模式
 > 的替代品，且与 NCAR/NOAA 无任何隶属或背书关系。参见[已知限制](#已知限制-1)。
@@ -173,13 +202,15 @@ Forecasting，天气预报研究与模式）核心算法的一个纯 **Python / 
 
 - **动力核** — RK3 时间积分、非静力平衡、地形跟随坐标、动量/热/水汽平流、
   全扰动气压、地图投影因子、阻尼选项。
-- **物理过程** — WSM6 单矩微物理方案（云/雨/冰/雪/霰）、降水下落与斜率过程、
-  边界层与扩散、湿调整接口。
+- **物理过程** — WSM6 单矩微物理方案（云/雨/冰/雪/霰）及湿调整接口。
+  其它 WRF 物理方案（辐射、陆面、边界层、积云）不在本版范围内——
+  见[已知限制](#已知限制-1)。
 - **边界条件** — 指定区（松弛 + 指定区）与流依赖的侧边界更新、质量加权。
 - **可微** — 所有运算均为 PyTorch 张量运算，整个动力核可在 `torch.autograd`
-  下运行，可作为神经天气模型的一层参与训练。
+  下运行。这正是论文中耦合 ML–NWP 优化框架（观测引导的偏差订正、
+  截断反传训练）所依赖的基础。
 - **贴合真实个例** — 内置配置复现了一个真实 9 km WRF 运行的区域
-  （230×230×41 格点）。
+  （230×230×41 格点），真实个例数据在 `data/` 目录。
 
 ## 目录结构
 
@@ -264,38 +295,42 @@ python -m pywrf                    # 安装后使用模块入口
 
 ## 引用与致谢
 
-本代码配套以下论文：
+**本仓库是以下论文的官方代码——在使用 PyWRF 时请引用它：**
 
 - Chu, H., Cao, Y., Wang, R., Xu, J., Chen, L., Fan, X., Chen, S., Guo, J., &
   Wu, J. (2026). *A Novel ML–NWP Coupled Optimization Approach on a
   Reconstructed WRF Model*. Journal of Meteorological Research, 40(3), 653–668.
   https://doi.org/10.1007/s13351-026-5154-1
 
-PyWRF 是对 WRF 模式数值方案的独立 Python 重实现。WRF 模式由 NCAR、NOAA 及
-合作者开发：
+PyWRF 是对 WRF 模式数值方案的独立 Python 重实现。作为背景参考，WRF 模式由
+NCAR、NOAA 及合作者开发：
 
 - Skamarock, W. C., et al. (2019). *A Description of the Advanced Research WRF
   Model Version 4*, NCAR/TN-556+STR.
 - Hong, S.-Y., & Lim, J.-O. J. (2006). *The WRF single-moment 6-class
   microphysics scheme (WSM6)*. J. Korean Meteor. Soc., 42, 129–151.
 
-在论文中使用 PyWRF 时，请引用上面的论文及上述 WRF 文档。PyWRF 与 NCAR 无隶属或
-背书关系，以 MIT 许可证发布。
+PyWRF 与 NCAR 无隶属或背书关系，以 MIT 许可证发布。
 
 ## 已知限制
 
-- **研究原型** — 并非 WRF 模式的替代品，性能远低于编译版 Fortran WRF，
-  精度不作保证。
+- **物理范围** — 本版重构了 WRF 的*热力学*框架和 WSM6 单矩微物理。其余 WRF
+  物理方案（辐射、陆面、边界层、积云）未实现；代码中的边界层/扩散钩子为
+  占位。
+- **验证范围** — 如论文所述，模型及耦合 ML–NWP 框架基于**中国东部 8 次中尺度
+  降水过程**训练与评估。对其他区域、季节或事件类型的精度未得到验证。
+- **研究原型** — PyWRF 是面向 ML–NWP 研究的可微重实现，并非编译版 Fortran
+  WRF 模式的替代品：计算性能远低于 Fortran 参考版，且未经业务化验证。
+- **ML 耦合未随仓库发布** — 论文中的单柱神经网络耦合与截断反传训练策略是
+  研究应用；本仓库发布的是独立的可微动力核心。
+- **边界数据覆盖** — 随附的 `wrfbdy` 仅有 2 个边界时次（相隔 6 小时），因此
+  时间循环运行 720 步（12 小时）；更长的运行需要更多边界时次。
 - **单一配置** — 仅内置一个 9 km 单域个例；其他区域需修改 `config_params.py`。
 - **已去除机器相关设置** — 原始工作代码中硬编码的 GPU 编号已替换为
   `PYWRF_GPU` 变量。
 - **fp16 变体** — 原始压缩包中仅有物理模块 fp16 变体的编译产物（`*.pyc`），
   其源代码未包含在本仓库中。
-- **文件名已重命名 / 结构重构** — 原始工作文件名（`wrf_*_fuctions.py`、
-  `read_wrfinput_writenc_noai_new_9km_1.py`）在本版本中已重命名
-  （`wrf_*.py`），且原单体驱动脚本已拆分为 `pywrf.solver` 模块
-  （`WrfSolver`）+ 精简 CLI 入口（`examples/run_wrf_9km.py`）。
 
 ## 许可证
 
-[MIT](LICENSE) © 2026 caoyuan。
+[MIT](LICENSE) © 2026 caotong0。

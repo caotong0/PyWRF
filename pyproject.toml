@@ -9,7 +9,7 @@ description = "A PyTorch-based differentiable reimplementation of the WRF model 
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
-authors = [{ name = "caoyuan" }]
+authors = [{ name = "caotong0" }]
 keywords = ["wrf", "weather", "forecasting", "differentiable", "pytorch", "atmospheric"]
 classifiers = [
     "Development Status :: 3 - Alpha",
