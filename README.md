@@ -146,6 +146,11 @@ collaborators:
 PyWRF is not affiliated with or endorsed by NCAR, and is distributed under the
 MIT license.
 
+## Contributors
+
+The entire PyWRF codebase was contributed by **Hai Chu (储海)**, the first
+author of the paper above.
+
 ## Known limitations
 
 - **Physics scope** — this release reconstructs WRF's *thermodynamic* framework
@@ -312,6 +317,10 @@ NOAA 及合作者开发，相关文献如下：
   microphysics scheme (WSM6)*. J. Korean Meteor. Soc., 42, 129–151.
 
 PyWRF 与 NCAR 无隶属或背书关系，以 MIT 许可证发布。
+
+## 贡献者
+
+PyWRF 全部代码由**储海（Hai Chu）**贡献，他是上述论文的第一作者。
 
 ## 已知限制
 
