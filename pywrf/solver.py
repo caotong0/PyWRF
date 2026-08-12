@@ -447,8 +447,10 @@ class WrfSolver:
 
 
 
-        ### (3) MAIN TIME LOOP - 1600 steps x dt -------------------------
-        for t_big_step in range(1,1601,1):     # 1600 steps x 60 s = 26.7 h
+        ### (3) MAIN TIME LOOP - 640 steps x dt --------------------------
+        # 640 steps x 60 s = 10.7 h. The shipped wrfbdy has 2 boundary times
+        # (loaded at steps 1 and 321, it_bdy = 0, 1); 640 steps stays in bounds.
+        for t_big_step in range(1,641,1):
             # bdy input (refresh the lateral boundary arrays every bdy_interval steps)
             with torch.no_grad():
                 if t_big_step%bdy_interval == 1:

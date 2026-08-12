@@ -49,12 +49,13 @@ relax_zone = 4
 top_lid = False
 
 # --- Run / timing -----------------------------------------------------------
-# Shipped 9 km case: 6 h, 60 s main step, boundary arrays refreshed every 320
-# steps. (run_secs / dtsteps are documentation-consistent; the solver time loop
-# currently uses a fixed step count.)
-run_secs = 21600        # 6 hours
+# Shipped 9 km case: 640 steps x 60 s = 10.7 h, 60 s main step, boundary arrays
+# refreshed every 320 steps. The shipped wrfbdy has only 2 boundary times, so the
+# time loop is capped at 640 steps (see data/README.md); run_secs / dtsteps are
+# documentation-consistent with that.
+run_secs = 38400        # 640 steps x 60 s = 10.7 h
 dt = 60
-dtsteps = 1200          # 21600 / 18
+dtsteps = 640           # solver steps
 bdy_interval = 320      # boundary update interval (steps)
 nx = 230
 ny = 230
