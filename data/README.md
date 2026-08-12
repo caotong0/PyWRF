@@ -23,14 +23,12 @@ To point at a different run, override `PYWRF_DATA_DIR` / `PYWRF_RUN_NAME`.
 
 ## ⚠️ Boundary data coverage
 
-`wrfbdy_d01_2024020106` contains **2 boundary-update time levels** (0 and 1).
-The solver loads a new boundary state every `bdy_interval = 320` steps and
-indexes `it_bdy = t_big_step // 320` (steps 1, 321, 641, 961, 1281 → `it_bdy` =
-0, 1, 2, 3, 4). With only 2 levels available, indexing past step 640 would hit
-the end of the boundary data. The solver's time loop is therefore set to
-**640 steps** (≈ 10.7 h at dt = 60 s), which uses both boundary times exactly
-(`it_bdy` = 0 at step 1, 1 at step 321). A longer run needs a `wrfbdy` file
-with 5 boundary levels.
+`wrfbdy_d01_2024020106` holds **2 boundary time levels, 6 h apart** — 06:00 and
+12:00 UTC (its `Times` variable: 2024-02-01_06:00:00 / 12:00:00). The solver
+loads a boundary state every `bdy_interval = 360` steps (= 6 h) and indexes
+`it_bdy = t_big_step // 360`: level 0 at step 1 covers 06:00→12:00, level 1 at
+step 361 covers 12:00→18:00. The time loop is therefore **720 steps = 12 h**
+(06:00 → 18:00). A longer run would need a 3rd boundary level (18:00).
 
 ---
 
@@ -58,9 +56,9 @@ python examples/run_wrf_9km.py
 
 ## ⚠️ 边界数据覆盖范围
 
-`wrfbdy_d01_2024020106` 只有 **2 个边界更新时次**（0 和 1）。求解器每
-`bdy_interval = 320` 步加载一次新边界，按 `it_bdy = t_big_step // 320`
-索引；超过第 640 步会超出边界数据末尾。因此求解器的**时间循环已设为
-640 步**（dt=60s 下约 10.7 小时），恰好用完两个边界时次（第 1 步
-`it_bdy`=0、第 321 步 `it_bdy`=1）。更长的运行需要 5 个边界时次的
-`wrfbdy` 文件。
+`wrfbdy_d01_2024020106` 有 **2 个边界时次，相隔 6 小时**——06:00 与 12:00
+UTC（其 `Times` 变量为 2024-02-01_06:00:00 / 12:00:00）。求解器每
+`bdy_interval = 360` 步（=6 小时）加载一次新边界，按
+`it_bdy = t_big_step // 360` 索引：第 1 步加载时次 0（覆盖 06:00→12:00），
+第 361 步加载时次 1（覆盖 12:00→18:00）。因此**时间循环为 720 步 = 12 小时**
+（06:00 → 18:00）。更长的运行需要第 3 个边界时次（18:00）。
